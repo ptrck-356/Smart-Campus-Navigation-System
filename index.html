@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>LAKAW - Campus Path Finder</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+      referrerpolicy="no-referrer"
+    />
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body>
+    <div class="app">
+      <aside class="sidebar">
+        <header class="topbar">
+          <div class="brand">
+            <span class="brand-icon"><i class="fa-solid fa-map"></i></span>
+            <div class="brand-text">
+              <div class="brand-title">LAKAW</div>
+              <div class="brand-subtitle">Find your path</div>
+            </div>
+          </div>
+          <button id="btnExit" class="ghost-btn" type="button" title="Clear everything">
+            <i class="fa-solid fa-right-from-bracket"></i>
+          </button>
+        </header>
+
+        <nav class="sidebar-nav">
+          <button class="nav-item active" data-target="build">
+            <i class="fa-solid fa-hammer"></i> Build
+          </button>
+          <button class="nav-item" data-target="route">
+            <i class="fa-solid fa-route"></i> Route
+          </button>
+        </nav>
+
+        <div class="sidebar-content">
+          <section class="panel left tab-content active" id="build">
+            <div class="panel-head">
+              <div class="panel-title">
+                <i class="fa-solid fa-diagram-project"></i> Graph Builder
+              </div>
+              <div class="panel-actions">
+                <button id="btnResetGraph" class="ghost-btn" type="button" title="Remove all">
+                  <i class="fa-solid fa-eraser"></i>
+                </button>
+              </div>
+            </div>
+
+            <div class="panel-body">
+              <div class="card">
+                <div class="card-title">
+                  <i class="fa-solid fa-location-dot"></i> Add Location
+                </div>
+                <div class="row">
+                  <input id="locationName" type="text" placeholder="Location name" />
+                  <button id="btnAddLocation" class="primary-btn" type="button">
+                    <i class="fa-solid fa-plus"></i>
+                  </button>
+                </div>
+              </div>
+
+              <div class="card">
+                <div class="card-title">
+                  <i class="fa-solid fa-link"></i> Add Connection
+                </div>
+                <div class="row two">
+                  <label class="field">
+                    <span class="label">From</span>
+                    <select id="fromSelect"></select>
+                  </label>
+                  <label class="field">
+                    <span class="label">To</span>
+                    <select id="toSelect"></select>
+                  </label>
+                </div>
+                <div class="row">
+                  <input id="weightInput" type="number" min="1" step="1" value="1" placeholder="W" />
+                  <button id="btnAddConnection" class="primary-btn" type="button">
+                    <i class="fa-solid fa-route"></i>
+                  </button>
+                </div>
+              </div>
+
+              <div class="card">
+                <div class="card-title">
+                  <i class="fa-solid fa-trash-can"></i> Delete Location
+                </div>
+                <div class="row">
+                  <select id="deleteSelect"></select>
+                  <button id="btnDeleteLocation" class="ghost-btn" type="button" style="color: #ff5555; border-color: rgba(255,85,85,0.2);">
+                    <i class="fa-solid fa-trash"></i>
+                  </button>
+                </div>
+              </div>
+
+              <div class="card">
+                <div id="adjacencyList" class="table"></div>
+              </div>
+            </div>
+          </section>
+
+          <section class="panel right tab-content" id="route">
+            <div class="panel-head">
+              <div class="panel-title">
+                <i class="fa-solid fa-compass-drafting"></i> Path Finder
+              </div>
+              <button id="btnClearResults" class="ghost-btn" type="button" title="Clear results">
+                <i class="fa-solid fa-trash"></i>
+              </button>
+            </div>
+
+            <div class="panel-body">
+              <div class="card">
+                <div class="row two">
+                  <select id="startSelect"></select>
+                  <select id="destSelect"></select>
+                </div>
+                <div class="row path-actions">
+                  <button id="btnPathMode" class="secondary-btn toggle-btn active" type="button" title="Toggle Short/Long Path">
+                    <i class="fa-solid fa-bolt"></i> <span>Short Path</span>
+                  </button>
+                </div>
+              </div>
+
+              <div class="results">
+                <div id="connectivityOutput" class="result-text">-</div>
+                <div class="result-grid">
+                  <div id="shortOutput" class="result-text small">-</div>
+                  <div id="longOutput" class="result-text small">-</div>
+                </div>
+              </div>
+            </div>
+          </section>
+        </div>
+      </aside>
+
+      <main class="main-content">
+        <div class="map-controls">
+          <div class="stats">
+            <div class="stat"><span class="label">Nodes:</span> <span id="locationsCount">0</span></div>
+            <div class="stat"><span class="label">Edges:</span> <span id="connectionsCount">0</span></div>
+          </div>
+          <div class="instructions">Drag nodes to rearrange. Connections update automatically.</div>
+        </div>
+        <div id="mapContainer" class="map-container">
+          <svg id="mapSvg" width="100%" height="100%" viewBox="0 0 1000 1000">
+            <defs>
+              <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="20" refY="3.5" orient="auto">
+                <polygon points="0 0, 10 3.5, 0 7" fill="var(--brand)" />
+              </marker>
+            </defs>
+            <g id="edgesLayer"></g>
+            <g id="nodesLayer"></g>
+          </svg>
+        </div>
+      </main>
+    </div>
+    <script src="main.js"></script>
+  </body>
+</html>
