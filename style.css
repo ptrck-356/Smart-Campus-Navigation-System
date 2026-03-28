@@ -156,6 +156,7 @@ body {
   border-radius: var(--radius);
   overflow: hidden;
   width: 100%;
+  flex-shrink: 0;
 }
 
 .panel-head {
