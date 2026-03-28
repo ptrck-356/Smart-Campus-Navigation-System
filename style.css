@@ -387,6 +387,7 @@ input:focus, select:focus {
 
 .stat .label {
   color: var(--muted);
+  font-size: 0.8rem;
 }
 
 .instructions {
