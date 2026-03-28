@@ -15,19 +15,6 @@ A browser-based **smart campus navigation** demo: an interactive map where locat
 
 Plain **HTML**, **CSS**, and **JavaScript** (no build step). Uses **Inter** and **Font Awesome** from CDNs.
 
-## How to run
-
-Open `index.html` in a modern browser.
-
-If styles or assets fail to load (e.g. CSS is linked as `/styles/style.css`), serve the project folder with a local HTTP server, for example:
-
-```bash
-# From this folder (where index.html lives)
-npx --yes serve .
-```
-
-Then open the URL shown in the terminal (often `http://localhost:3000`).
-
 ## Project layout
 
 | Path | Role |
