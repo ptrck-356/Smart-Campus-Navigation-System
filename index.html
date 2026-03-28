@@ -82,22 +82,13 @@
                     <select id="toSelect"></select>
                   </label>
                 </div>
-                <div class="row">
-                  <input id="weightInput" type="number" min="1" step="1" value="1" placeholder="W" />
-                  <button id="btnAddConnection" class="primary-btn" type="button">
+                <div class="row" style="align-items: center;">
+                  <input id="weightInput" type="number" min="1" step="1" value="1" placeholder="W" style="width:70px;" disabled />
+                  <label class="field checkbox-field" style="display:flex; align-items:center; gap:5px; color:var(--muted); font-size:11px; cursor:pointer;" title="Auto-calculate using node coordinates">
+                    <input type="checkbox" id="autoWeightCheck" checked /> Auto
+                  </label>
+                  <button id="btnAddConnection" class="primary-btn" type="button" style="margin-left:auto;">
                     <i class="fa-solid fa-route"></i>
-                  </button>
-                </div>
-              </div>
-
-              <div class="card">
-                <div class="card-title">
-                  <i class="fa-solid fa-trash-can"></i> Delete Location
-                </div>
-                <div class="row">
-                  <select id="deleteSelect"></select>
-                  <button id="btnDeleteLocation" class="ghost-btn" type="button" style="color: #ff5555; border-color: rgba(255,85,85,0.2);">
-                    <i class="fa-solid fa-trash"></i>
                   </button>
                 </div>
               </div>
@@ -162,8 +153,31 @@
             <g id="nodesLayer"></g>
           </svg>
         </div>
+
+        <!-- Floating Canvas Toolbar -->
+        <div id="floatingToolbar" class="floating-toolbar">
+          <button id="btnFloatingDelete" class="floating-btn" title="Delete Location">
+            <i class="fa-solid fa-trash"></i> Delete Location
+          </button>
+        </div>
       </main>
+    </div>    <!-- Custom Modal -->
+    <div id="customModal" class="modal-overlay">
+      <div class="modal-box">
+        <div id="modalMessage" class="modal-message"></div>
+        <div class="modal-actions">
+          <button id="modalBtnCancel" class="secondary-btn">Cancel</button>
+          <button id="modalBtnConfirm" class="primary-btn accent" style="color: #000;">Confirm</button>
+        </div>
+      </div>
     </div>
+
+    <!-- Toast Notifications -->
+    <div id="toastContainer" class="toast-container"></div>
+
+    <!-- Toast Notifications -->
+    <div id="toastContainer" class="toast-container"></div>
+
     <script src="main.js"></script>
   </body>
 </html>
