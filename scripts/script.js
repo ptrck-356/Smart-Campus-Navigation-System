@@ -69,8 +69,16 @@ const el = {
   modalBtnConfirm: document.getElementById("modalBtnConfirm"),
   toastContainer: document.getElementById("toastContainer"),
 
+  promptModal: document.getElementById("promptModal"),
+  promptMessage: document.getElementById("promptMessage"),
+  promptInput: document.getElementById("promptInput"),
+  promptBtnCancel: document.getElementById("promptBtnCancel"),
+  promptBtnConfirm: document.getElementById("promptBtnConfirm"),
+  tempLayer: document.getElementById("tempLayer"),
+
   floatingToolbar: document.getElementById("floatingToolbar"),
-  btnFloatingDelete: document.getElementById("btnFloatingDelete")
+  btnFloatingDelete: document.getElementById("btnFloatingDelete"),
+  btnFloatingDeleteText: document.getElementById("btnFloatingDeleteText")
 };
 
 let draggedNode = null;
@@ -79,6 +87,10 @@ let currentPathNodes = [];
 let currentPathType = null; // 'short' or 'long'
 let currentMode = 'short'; // 'short' or 'long'
 let selectedElement = null;
+
+let isConnecting = false;
+let dragSourceNode = null;
+let tempLine = null;
 
 let isPanning = false;
 let startPan = { x: 0, y: 0 };
@@ -124,6 +136,30 @@ function showConfirm(msg, onConfirm) {
   el.modalBtnCancel.addEventListener("click", handleCancel);
 }
 
+function showPrompt(msg, defaultVal, onConfirm) {
+  el.promptMessage.textContent = msg;
+  el.promptInput.value = defaultVal;
+  el.promptModal.classList.add("active");
+  el.promptInput.focus();
+  el.promptInput.select();
+  
+  const handleConfirm = () => {
+    const val = el.promptInput.value;
+    cleanup();
+    onConfirm(val);
+  };
+  const handleCancel = () => cleanup();
+  
+  const cleanup = () => {
+    el.promptModal.classList.remove("active");
+    el.promptBtnConfirm.removeEventListener("click", handleConfirm);
+    el.promptBtnCancel.removeEventListener("click", handleCancel);
+  };
+  
+  el.promptBtnConfirm.addEventListener("click", handleConfirm);
+  el.promptBtnCancel.addEventListener("click", handleCancel);
+}
+
 function saveData() {
   localStorage.setItem("lakaw_graph", JSON.stringify(graph));
   localStorage.setItem("lakaw_nodes", JSON.stringify(graphNodes));
@@ -148,6 +184,11 @@ function loadData() {
 
 function selectElement(element, e) {
   selectedElement = element;
+  if (element.type === 'edge') {
+    el.btnFloatingDeleteText.textContent = "Delete Connection";
+  } else {
+    el.btnFloatingDeleteText.textContent = "Delete Location";
+  }
   renderMap();
   
   el.floatingToolbar.classList.add("active");
@@ -180,6 +221,20 @@ function deleteAction() {
       triggerAutoPath();
       saveData();
       showToast("Location deleted.");
+    });
+  } else if (selectedElement.type === 'edge') {
+    const selectedU = selectedElement.u;
+    const selectedV = selectedElement.v;
+    showConfirm(`Delete connection between "${selectedU}" and "${selectedV}"?`, () => {
+      delete graph[selectedU][selectedV];
+      delete graph[selectedV][selectedU];
+      deselectElement();
+      updateCounts();
+      updateAdjList();
+      renderMap();
+      triggerAutoPath();
+      saveData();
+      showToast("Connection deleted.");
     });
   }
 }
@@ -341,7 +396,12 @@ function renderMapImmediate() {
       line.setAttribute("y1", p1.y);
       line.setAttribute("x2", p2.x);
       line.setAttribute("y2", p2.y);
-      line.setAttribute("class", "edge");
+
+      const isEdgeSelected = selectedElement && selectedElement.type === 'edge' && 
+                             ((selectedElement.u === u && selectedElement.v === v) || 
+                              (selectedElement.u === v && selectedElement.v === u));
+      const lineClass = isEdgeSelected ? "edge selected" : "edge";
+      line.setAttribute("class", lineClass);
 
       if (currentPathNodes.length > 0) {
         let isPart = false;
@@ -357,6 +417,25 @@ function renderMapImmediate() {
         }
       }
       el.edgesLayer.appendChild(line);
+
+      line.addEventListener('click', (e) => {
+        e.stopPropagation();
+        selectElement({ type: 'edge', u: u, v: v }, e);
+      });
+      line.addEventListener('dblclick', (e) => {
+        e.stopPropagation();
+        showPrompt(`New weight for ${u} ↔ ${v}`, graph[u][v], (newW) => {
+          let w = Math.floor(Number(newW));
+          if (w > 0) {
+            graph[u][v] = w;
+            graph[v][u] = w;
+            updateAdjList();
+            renderMap();
+            triggerAutoPath();
+            saveData();
+          }
+        });
+      });
 
       const midX = (p1.x + p2.x) / 2;
       const midY = (p1.y + p2.y) / 2;
@@ -396,6 +475,25 @@ function renderMapImmediate() {
     el.nodesLayer.appendChild(g);
 
     const startDrag = (e) => {
+      if (e.shiftKey) {
+        isConnecting = true;
+        dragSourceNode = n;
+        const p1 = graphNodes[n];
+        const p = getSVGPoint(e);
+        tempLine = document.createElementNS("http://www.w3.org/2000/svg", "line");
+        tempLine.setAttribute("x1", p1.x);
+        tempLine.setAttribute("y1", p1.y);
+        tempLine.setAttribute("x2", p.x);
+        tempLine.setAttribute("y2", p.y);
+        tempLine.setAttribute("stroke", "var(--brand)");
+        tempLine.setAttribute("stroke-width", "4");
+        tempLine.setAttribute("stroke-dasharray", "5,5");
+        tempLine.setAttribute("pointer-events", "none");
+        el.tempLayer.appendChild(tempLine);
+        e.stopPropagation();
+        if (e.type === 'touchstart' && e.cancelable) e.preventDefault();
+        return;
+      }
       draggedNode = n;
       selectElement({ type: 'node', id: n }, e);
       const p = getSVGPoint(e);
@@ -407,6 +505,38 @@ function renderMapImmediate() {
 
     g.addEventListener("mousedown", startDrag);
     g.addEventListener("touchstart", startDrag, { passive: false });
+    
+    g.addEventListener("dblclick", (e) => {
+      e.stopPropagation();
+      showPrompt(`Rename "${n}"`, n, (newName) => {
+        newName = fixName(newName);
+        if (!newName || newName === n) return;
+        if (graph[newName]) return showToast("Name already exists", "error");
+        
+        graphNodes[newName] = graphNodes[n];
+        delete graphNodes[n];
+        
+        graph[newName] = graph[n];
+        delete graph[n];
+        
+        for (const u of Object.keys(graph)) {
+          if (graph[u][n] !== undefined) {
+             graph[u][newName] = graph[u][n];
+             delete graph[u][n];
+          }
+        }
+        
+        if (el.startSelect.value === n) el.startSelect.value = newName;
+        if (el.destSelect.value === n) el.destSelect.value = newName;
+        if (selectedElement && selectedElement.id === n) selectedElement.id = newName;
+        
+        updateSelectors();
+        updateAdjList();
+        renderMap();
+        triggerAutoPath();
+        saveData();
+      });
+    });
   }
 }
 
@@ -631,6 +761,13 @@ function init() {
   el.mapSvg.addEventListener('touchstart', startPanHandler, { passive: false });
 
   const moveHandler = (e) => {
+    if (isConnecting && tempLine) {
+      if (e.type === 'touchmove' && e.cancelable) e.preventDefault();
+      const p = getSVGPoint(e);
+      tempLine.setAttribute("x2", p.x);
+      tempLine.setAttribute("y2", p.y);
+      return;
+    }
     if (draggedNode) {
       if (e.type === 'touchmove' && e.cancelable) e.preventDefault();
       const p = getSVGPoint(e);
@@ -659,7 +796,36 @@ function init() {
   window.addEventListener('mousemove', moveHandler);
   window.addEventListener('touchmove', moveHandler, { passive: false });
 
-  const endHandler = () => {
+  const endHandler = (e) => {
+    if (isConnecting) {
+      if (tempLine) tempLine.remove();
+      const eEvent = e.changedTouches ? e.changedTouches[0] : e;
+      const target = document.elementFromPoint(eEvent.clientX, eEvent.clientY);
+      let targetNode = null;
+      if (target && target.closest('.node')) {
+        targetNode = target.closest('.node').dataset.name;
+      }
+      if (targetNode && targetNode !== dragSourceNode) {
+        let w = 1;
+        if (el.autoWeightCheck.checked) {
+          const p1 = graphNodes[dragSourceNode];
+          const p2 = graphNodes[targetNode];
+          w = Math.max(1, Math.floor(Math.hypot(p2.x - p1.x, p2.y - p1.y)));
+        } else {
+          w = Math.max(1, Math.floor(Number(el.weightInput.value)));
+        }
+        graph[dragSourceNode][targetNode] = w;
+        graph[targetNode][dragSourceNode] = w;
+        updateCounts();
+        updateAdjList();
+        renderMap();
+        triggerAutoPath();
+        saveData();
+      }
+      isConnecting = false;
+      dragSourceNode = null;
+      tempLine = null;
+    }
     if (draggedNode) {
       saveData();
       draggedNode = null;

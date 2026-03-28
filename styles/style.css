@@ -448,14 +448,31 @@ input:focus, select:focus {
 
 .edge {
   stroke: var(--stroke);
-  stroke-width: 2;
+  stroke-width: 4;
+  cursor: pointer;
   transition: stroke 0.3s, stroke-width 0.3s;
+}
+
+.edge:hover {
+  stroke: var(--muted);
+}
+
+.edge.selected {
+  stroke: var(--danger);
+  stroke-dasharray: 4;
+  animation: dash 5s linear infinite;
+  stroke-width: 6;
 }
 
 .edge-label {
   fill: var(--muted);
-  font-size: 10px;
+  font-size: 11px;
+  font-weight: bold;
   pointer-events: none;
+}
+
+.edge.selected + .edge-label {
+  fill: var(--danger);
 }
 
 .edge.active {
@@ -608,4 +625,22 @@ input:focus, select:focus {
 
 .floating-btn:hover {
   text-decoration: underline;
+}
+
+/* Prompt Modal Inputs */
+.prompt-input {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  color: #fff;
+  padding: 12px 14px;
+  outline: none;
+  font-family: inherit;
+  font-size: 14px;
+  transition: border-color 0.2s;
+}
+
+.prompt-input:focus {
+  border-color: var(--brand);
 }
