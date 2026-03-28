@@ -1,2 +1,2 @@
-# Smart Campus Navigation System
+# PROJECT OVERVIEW
 
