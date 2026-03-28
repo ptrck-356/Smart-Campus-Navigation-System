@@ -15,7 +15,7 @@
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
       referrerpolicy="no-referrer"
     />
-    <link rel="stylesheet" href="./style.css" />
+    <link rel="stylesheet" href="/styles/style.css" />
   </head>
   <body>
     <div class="app">
@@ -150,14 +150,15 @@
               </marker>
             </defs>
             <g id="edgesLayer"></g>
+            <g id="tempLayer"></g>
             <g id="nodesLayer"></g>
           </svg>
         </div>
 
         <!-- Floating Canvas Toolbar -->
         <div id="floatingToolbar" class="floating-toolbar">
-          <button id="btnFloatingDelete" class="floating-btn" title="Delete Location">
-            <i class="fa-solid fa-trash"></i> Delete Location
+          <button id="btnFloatingDelete" class="floating-btn" title="Delete element">
+            <i class="fa-solid fa-trash"></i> <span id="btnFloatingDeleteText">Delete Location</span>
           </button>
         </div>
       </main>
@@ -172,9 +173,21 @@
       </div>
     </div>
 
+    <!-- Prompt Modal -->
+    <div id="promptModal" class="modal-overlay">
+      <div class="modal-box">
+        <div id="promptMessage" class="modal-message"></div>
+        <input id="promptInput" type="text" class="prompt-input" />
+        <div class="modal-actions" style="margin-top: 20px;">
+          <button id="promptBtnCancel" class="secondary-btn">Cancel</button>
+          <button id="promptBtnConfirm" class="primary-btn accent" style="color: #000;">Confirm</button>
+        </div>
+      </div>
+    </div>
+
     <!-- Toast Notifications -->
     <div id="toastContainer" class="toast-container"></div>
 
-    <script src="script.js"></script>
+    <script src="scripts/script.js"></script>
   </body>
 </html>
