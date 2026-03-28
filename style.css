@@ -136,6 +136,7 @@ body {
   display: flex;
   flex-direction: column;
   gap: 20px;
+  min-height: 0;
 }
 
 /* Scrollbar */
@@ -154,7 +155,7 @@ body {
   border: 1px solid var(--stroke);
   border-radius: var(--radius);
   overflow: hidden;
-  min-width: 330px;
+  width: 100%;
 }
 
 .panel-head {

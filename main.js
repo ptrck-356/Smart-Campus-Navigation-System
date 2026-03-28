@@ -207,11 +207,9 @@ function updateCounts() {
 
   let edges = 0;
   for (const u of ns) {
-    for (const v of Object.keys(graph[u])) {
-      if (u.localeCompare(v) < 0) edges += 1;
-    }
+    edges += Object.keys(graph[u] || {}).length;
   }
-  el.connectionsCount.textContent = String(edges);
+  el.connectionsCount.textContent = String(edges / 2);
 }
 
 function updateAdjList() {
@@ -310,7 +308,18 @@ function triggerAutoPath() {
   renderMap();
 }
 
+let renderPending = false;
 function renderMap() {
+  if (!renderPending) {
+    renderPending = true;
+    requestAnimationFrame(() => {
+      renderMapImmediate();
+      renderPending = false;
+    });
+  }
+}
+
+function renderMapImmediate() {
   el.nodesLayer.innerHTML = "";
   el.edgesLayer.innerHTML = "";
 
@@ -483,11 +492,14 @@ function dijkstra(s, d) {
   nodes.forEach(n => dist[n] = Infinity);
   dist[s] = 0;
 
-  const pq = [...nodes];
-  while (pq.length) {
-    pq.sort((a, b) => dist[a] - dist[b]);
-    const u = pq.shift();
-    if (u === d || dist[u] === Infinity) break;
+  const unvisited = new Set(nodes);
+  while (unvisited.size) {
+    let u = null;
+    for (const n of unvisited) {
+      if (u === null || dist[n] < dist[u]) u = n;
+    }
+    if (u === null || u === d || dist[u] === Infinity) break;
+    unvisited.delete(u);
 
     for (const v of Object.keys(graph[u] || {})) {
       const alt = dist[u] + graph[u][v];
@@ -625,7 +637,6 @@ function init() {
       graphNodes[draggedNode].x = p.x - offset.x;
       graphNodes[draggedNode].y = p.y - offset.y;
       renderMap();
-      saveData();
       return;
     }
     
@@ -649,7 +660,10 @@ function init() {
   window.addEventListener('touchmove', moveHandler, { passive: false });
 
   const endHandler = () => {
-    draggedNode = null;
+    if (draggedNode) {
+      saveData();
+      draggedNode = null;
+    }
     if (isPanning) {
       isPanning = false;
       el.mapSvg.style.cursor = 'grab';
