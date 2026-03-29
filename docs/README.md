@@ -6,8 +6,8 @@ A browser-based **smart campus navigation** demo: an interactive map where locat
 
 ![Web Layout](imgs/web_layout.png)
 
-## 🚀 Live Demo
-**This project is deployed and live on [Vercel](https://vercel.com/)** *(Check your Vercel deployment URL)*.
+## Live Demo
+**This project is deployed and live on [Vercel](https://smart-campus-navigation-system-ei3qet5oj.vercel.app)** *(Check your Vercel deployment URL)*.
 
 ---
 
@@ -46,7 +46,7 @@ Use **Build → eraser** (reset to default campus) or **Exit** in the header —
 
 ---
 
-## 🛠️ How to Run Locally
+## How to Run Locally
 
 Because this project is built with plain **HTML**, **CSS**, and **Vanilla JavaScript** (no build steps), getting it running locally is incredibly easy:
 
