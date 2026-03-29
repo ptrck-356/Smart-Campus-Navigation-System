@@ -7,7 +7,7 @@ A browser-based **smart campus navigation** demo: an interactive map where locat
 ![Web Layout](imgs/web_layout.png)
 
 ## Live Demo
-**This project is deployed and live on [Vercel](https://smart-campus-navigation-system-ei3qet5oj.vercel.app)** *(Check your Vercel deployment URL)*.
+**This project is deployed and live on [Vercel](https://smart-campus-navigation-system-ei3qet5oj.vercel.app)**
 
 ---
 
