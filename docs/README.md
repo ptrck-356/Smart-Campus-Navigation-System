@@ -53,3 +53,10 @@ Because this project is built with plain **HTML**, **CSS**, and **Vanilla JavaSc
 1. Clone or download the repository to your machine.
 2. Simply open `index.html` in any modern web browser.
 3. *Alternative:* If you are using VS Code, right-click `index.html` and select **"Open with Live Server"** to view it.
+
+---
+
+## Group Members
+1. Agravante, John Patrick E.
+2. Nardo, Micha Ella
+3. Quintero, Kate G.
