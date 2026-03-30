@@ -30,7 +30,7 @@ A browser-based **smart campus navigation** demo: an interactive map where locat
 
 ## Stack
 
-Plain **HTML**, **CSS**, and **JavaScript** (no build step). Uses **Inter** and **Font Awesome** from CDNs.
+Plain **HTML**, **CSS**, and **JavaScript** (no build step).
 
 ## Project layout
 
